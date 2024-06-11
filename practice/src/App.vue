@@ -102,8 +102,10 @@ export default {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: this.email, name: this.name })
         });
-        const response = await res.json();
-        this.user_id = response.response._id;
+        if (res.ok) {
+          const response = await res.json();
+          this.user_id = response.response._id;
+        }
 
       } catch (error) {
         console.error("Post data error:", error);
