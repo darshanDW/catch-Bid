@@ -97,7 +97,7 @@ export default {
     },
     async postdata() {
       try {
-        const res = await fetch("http://localhost:3001/User/login", {
+        const res = await fetch("https://catch-bids.onrender.com//User/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: this.email, name: this.name })
