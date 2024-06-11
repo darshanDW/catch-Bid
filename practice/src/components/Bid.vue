@@ -5,8 +5,8 @@
         <h1 class="auction-status">{{ (new Date(listdata.end_date) < new Date()) ? 'status off' : 'status on' }}</h1>
                 <div class="auction-content">
 
-                    <img v-if="listdata.itemimage" :src="`http://localhost:3001/${listdata.itemimage}`" alt="Item Image"
-                        class="item-image" />
+                    <img v-if="listdata.itemimage" :src="`https://catch-bid-3.onrender.com/${listdata.itemimage}`"
+                        alt="Item Image" class="item-image" />
                     <div class="auction-details">
 
                         <h2>current price:{{ cp }}</h2>
@@ -55,7 +55,7 @@ function formattimestamp(timestamp = Date) {
 
 const placebid = async () => {
     try {
-        const response = await fetch('http://localhost:3001/User/bid', {
+        const response = await fetch('https://catch-bid-3.onrender.com/User/bid', {
             method: 'POST',
             headers: { 'content-Type': 'application/json' },
             body: JSON.stringify({ amount: cp.value + listdata.bid_interval, user_id: props.id, item_id: listdata._id }),
@@ -81,7 +81,7 @@ const placebid = async () => {
 const getbid = async () => {
     try {
 
-        const response = await fetch(`http://localhost:3001/User/bidlist/${listdata._id}`, {
+        const response = await fetch(`https://catch-bid-3.onrender.com/User/bidlist/${listdata._id}`, {
             method: 'POST',
 
             headers: { 'content-Type': 'application/json' },

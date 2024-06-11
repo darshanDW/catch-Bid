@@ -105,6 +105,7 @@ export default {
         if (res.ok) {
           const response = await res.json();
           this.user_id = response.response._id;
+          console.log(this.user_id);
         }
 
       } catch (error) {
