@@ -117,7 +117,7 @@ onMounted(() => { getbid(); });
     padding: 20px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    background-color: #f9f9f9;
+    background-color: #20201f;
     height: calc(800px + 20%);
     /* Ensures the height is greater than the width */
 }

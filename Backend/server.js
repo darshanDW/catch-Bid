@@ -3,6 +3,7 @@ const app = express();
 const db = require('./db');
 require('dotenv').config();
 const cors = require('cors');
+app.use(cors());
 const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({ extended: false }));
 const path = require('path');
@@ -11,7 +12,7 @@ const Items = require('./models/items');
 const Users = require('./models/users');
 const cloudinary = require('./utili/cloudinary');
 const pORT = process.env.PORT || 3000;
-app.use(cors());
+
 
 const userroutes = require('./routes/userroutes');
 

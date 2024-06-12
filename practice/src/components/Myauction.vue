@@ -3,7 +3,7 @@
 
     <div v-if="!show && lists.length" v-for="list in lists" :key="list._id" class="item-container">
       <div>
-        <img v-if="list.itemimage" :src="`http://localhost:3001/${list.itemimage}`" alt="Item Image"
+        <img v-if="list.itemimage" :src="`https://catch-bid-3.onrender.com/${list.itemimage}`" alt="Item Image"
           class="item-image" />
 
         <div class="item-info">
@@ -54,7 +54,7 @@ const m = () => {
 const getdata = async () => {
 
   try {
-    const response = await fetch(`http://localhost:3001/User/mybid/${x}`, {
+    const response = await fetch(`https://catch-bid-3.onrender.com/User/mybid/${x}`, {
       method: 'GET',
     })
     if (response.ok) {
