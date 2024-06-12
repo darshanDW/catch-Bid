@@ -4,7 +4,7 @@
     <form @submit.prevent="uploadFile" class="upload-form">
       <input type="string" placeholder="name of item" v-model="itemname" class="form-input"></input><br />
       <input type="number" placeholder="starting price" v-model="starting_price" class="form-input"></input><br />
-      <input type="Date" placeholder=" Pick a end date" v-model="end_date" class="form-input"></input><br />
+      <input type="Date" placeholder=" Pick  end date" name="end date" v-model="end_date" class="form-input"></input><br />
 
       <input type="file" @change="onFileChange" class="form-input" />
       <button type="submit" class="submit-button">Upload</button>
@@ -46,7 +46,10 @@ const uploadFile = async () => {
   try {
     const response = await fetch('https://catch-bid-3.onrender.com/uploads', {
       method: 'POST',
-      body: formData
+       headers : {'Content-Type':'application/json',
+                    'Access-Control-Allow-Origin':'*',
+                    'Access-Control-Allow-Methods':'POST,PATCH,OPTIONS'},
+      body: formData,
     });
     const data = await response.json();
 
