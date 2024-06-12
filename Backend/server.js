@@ -9,7 +9,7 @@ const path = require('path');
 app.use(bodyParser.json()); // req.bodys
 const Items = require('./models/items');
 const Users = require('./models/users');
-
+const cloudinary = require('./utili/cloudinary');
 const pORT = process.env.PORT || 3000;
 app.use(cors());
 
@@ -20,23 +20,35 @@ app.use("/uploads", express.static('uploads'));
 
 const multer = require('multer')
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        return cb(null, './uploads')
-    },
     filename: function (req, file, cb) {
-        return cb(null, `${Date.now()}-${file.originalname}`);
-    },
-})
+        cb(null, file.originalname)
+    }
+});
+
 
 const upload = multer({ storage: storage })
 
 
-app.post('/uploads', upload.single('avatar'), async function (req, res, next) {
+app.post('/uploads', upload.single('avatar'), async function (req, res) {
     // req.file is the `avatar` file
     // req.body will hold the text fields, if there were any
+    cloudinary.uploader.upload(req.file.path, function (err, result) {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({
+                success: false,
+                message: "Error"
+            })
+        }
 
+        res.status(200).json({
+            success: true,
+            message: "Uploaded!",
+            data: result
+        })
+    })
     try {
-        const link = req.file.path;
+        const link = result.secure_url;
 
 
         const { user_id, end_date, itemname, starting_price } = req.body;
