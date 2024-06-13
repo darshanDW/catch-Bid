@@ -46,12 +46,13 @@ const uploadFile = async () => {
   try {
     const response = await fetch('https://catch-bid-3.onrender.com/uploads', {
       method: 'POST',
-       headers : {
-                    'Access-Control-Allow-Origin':'*',
-                  "Access-Control-Allow-Methods":"DELETE, POST, GET, OPTIONS",
-                  "Access-Control-Allow-Headers":"Content-Type, Authorization, X-Requested-With"
-    },
+      mode:'cors',
+      headers:{'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': 'true',        'Content-Type': 'multipart/form-data'
+
+      },
       body: formData,
+     
     });
     const data = await response.json();
 
