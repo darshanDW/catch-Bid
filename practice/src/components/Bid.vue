@@ -117,7 +117,7 @@ onMounted(() => { getbid(); });
     padding: 20px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    background-color: #20201f;
+    background-color: #dadad4;
     height: calc(800px + 20%);
     /* Ensures the height is greater than the width */
 }
@@ -168,8 +168,8 @@ onMounted(() => { getbid(); });
 
 .bid-button {
     padding: 10px 20px;
-    background-color: #34281627;
-    color: white;
+    background-color: #08050027;
+    color: rgb(25, 25, 1);
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -178,13 +178,13 @@ onMounted(() => { getbid(); });
 }
 
 .bid-button:hover {
-    background-color: #25272900;
+    background-color: #eceae5;
 }
 
 .bids-section {
     grid-column: 2/ 5;
     grid-row: 1/ 5;
-    background-color: #e9ecef;
+    background-color: #ebeae1;
     padding: 20px;
     border-radius: 8px;
 }
