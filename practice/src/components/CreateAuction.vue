@@ -44,7 +44,7 @@ const uploadFile = async () => {
   formData.append('end_date', end_date.value);
   formData.append('user_id', user_id);
   try {
-    const response = await fetch('https://catch-bid-3.onrender.com/uploads', {
+    const response = await fetch('https://catch-bids-3.onrender.com/uploads', {
       method: 'POST',
       mode:'cors',
       headers:{'Access-Control-Allow-Origin': '*',

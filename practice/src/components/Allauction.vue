@@ -3,7 +3,7 @@
   <div class="grid-container">
     <div v-if="!show" v-for="list in lists" :key="list._id" class="item-container">
       <div>
-        <img v-if="list.itemimage" :src="`https://catch-bid-3.onrender.com/${list.itemimage}`" alt="Item Image"
+        <img v-if="list.itemimage" :src="`https://catch-bids-3.onrender.com/${list.itemimage}`" alt="Item Image"
           width="150" height="200" class="item-image">
         <div class="item-info">
           <ul>
@@ -41,7 +41,7 @@ const formatDate = (dateString) => {
 const getdata = async () => {
 
   try {
-    const response = await fetch('https://catch-bid-3.onrender.com/User/lists', {
+    const response = await fetch('https://catch-bids-3.onrender.com/User/lists', {
       method: 'GET',
     })
     if (response.ok) {
