@@ -33,26 +33,19 @@ const upload = multer({ storage: storage })
 app.post('/uploads', upload.single('avatar'), async function (req, res) {
     // req.file is the `avatar` file
     // req.body will hold the text fields, if there were any
-    cloudinary.uploader.upload(req.file.path, function (err, result) {
+    console.log(req.body);
 
-        if (err) {
-            console.log(err);
-            return res.status(500).json({
-                success: false,
-                message: "Error"
-            })
-        }
 
-        res.status(200).json({
-            success: true,
-            message: "Uploaded!",
-            data: result
-        })
-    })
     try {
-        const link = result.secure_url;
-        console.log(result.secure_url);
-        console.log(req.body);
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "No file uploaded"
+            });
+        }
+        const uploadResult = await cloudinary.uploader.upload(req.file.path);
+        const link = uploadResult.secure_url;
+        console.log(link);
 
         const { user_id, end_date, itemname, starting_price } = req.body;
 
@@ -61,7 +54,7 @@ app.post('/uploads', upload.single('avatar'), async function (req, res) {
         const response = await new Items({ user_id: user_id, itemname: itemname, starting_price: starting_price, end_date: end_date, itemimage: link }).save();
 
 
-        res.status(200).json({ response: response });
+        res.status(200).json({ response: response, });
 
 
     } catch (err) {

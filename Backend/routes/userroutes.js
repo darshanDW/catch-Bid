@@ -23,7 +23,7 @@ router.get('/lists', async (req, res) => {
     try {
 
 
-        let response = await Items.find();
+        const response = await Items.find();
         if (response) {
             res.status(200).json({ response: response });
         }
@@ -62,7 +62,7 @@ router.post('/bidlist/:id', async (req, res) => {
         if (!user) {
             return res.status(400).json({ msg: "user id not get" })
         }
-        res.status(200).json({ response: bids, name: user.name });
+        res.status(200).json({ response: bids });
 
     } catch (err) {
         console.error("Internal error:", err);
