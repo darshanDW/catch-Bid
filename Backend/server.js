@@ -34,6 +34,7 @@ app.post('/uploads', upload.single('avatar'), async function (req, res) {
     // req.file is the `avatar` file
     // req.body will hold the text fields, if there were any
     cloudinary.uploader.upload(req.file.path, function (err, result) {
+
         if (err) {
             console.log(err);
             return res.status(500).json({
@@ -50,7 +51,8 @@ app.post('/uploads', upload.single('avatar'), async function (req, res) {
     })
     try {
         const link = result.secure_url;
-
+        console.log(result.secure_url);
+        console.log(req.body);
 
         const { user_id, end_date, itemname, starting_price } = req.body;
 
