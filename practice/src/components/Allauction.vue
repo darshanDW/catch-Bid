@@ -3,7 +3,7 @@
   <div class="grid-container">
     <div v-if="!show" v-for="list in lists" :key="list._id" class="item-container">
       <div>
-        <img v-if="list.itemimage" :src="`https://catch-bids-3.onrender.com/${list.itemimage}`" alt="Item Image"
+        <img v-if="list.itemimage" :src="list.itemimage" alt="Item Image"
           width="150" height="200" class="item-image">
         <div class="item-info">
           <ul>
@@ -115,15 +115,12 @@ li {
 .bid-button {
   padding: 8px 16px;
   background-color: #2b2925;
-  color: rgb(230, 227, 227);
+  color: rgb(250, 249, 247);
   border: none;
   border-radius: 4px;
   cursor: pointer;
   align-self: flex-start;
 }
 
-.bid-button:hover {
-  background-color: #3627031f;
-  ;
-}
+
 </style>

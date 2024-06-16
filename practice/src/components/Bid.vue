@@ -5,7 +5,7 @@
         <h1 class="auction-status">{{ (new Date(listdata.end_date) < new Date()) ? 'status off' : 'status on' }}</h1>
                 <div class="auction-content">
 
-                    <img v-if="listdata.itemimage" :src="`https://catch-bids-3.onrender.com/${listdata.itemimage}`"
+                    <img v-if="listdata.itemimage" :src="listdata.itemimage"
                         alt="Item Image" class="item-image" />
                     <div class="auction-details">
 

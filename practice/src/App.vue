@@ -198,7 +198,7 @@ onMounted(() => { console.log(this.user_id) })
 }
 
 .auth-buttons button:hover:enabled {
-  background-color: #0056b3;
+  background-color: #2a333d;
 }
 
 main {

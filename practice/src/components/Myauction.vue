@@ -3,7 +3,7 @@
 
     <div v-if="!show && lists.length" v-for="list in lists" :key="list._id" class="item-container">
       <div>
-        <img v-if="list.itemimage" :src="`https://catch-bids-3.onrender.com/${list.itemimage}`" alt="Item Image"
+        <img v-if="list.itemimage" :src="list.itemimage" alt="Item Image"
           class="item-image" />
 
         <div class="item-info">
@@ -31,7 +31,6 @@
 <script setup>
 import { ref } from 'vue';
 import { onMounted } from 'vue';
-import { onUpdated } from 'vue';
 import Bid from './Bid.vue';
 import { useRoute } from 'vue-router';
 import CreateAuction from './CreateAuction.vue';
@@ -42,19 +41,19 @@ const lists = ref([]);
 const show = ref(false);
 const selectedlist = ref(null);
 const h = ref(route.params.x);
-const x = h.value;
+const t = h.value;
 const formatDate = (dateString) => {
   const date = new Date(dateString);
   return date.toISOString().split('T')[0];
 };
 const m = () => {
-  router.push({ name: 'CreateAuction', params: { x } });
+  router.push({ name: 'CreateAuction', params: { t } });
 
 }
 const getdata = async () => {
 
   try {
-    const response = await fetch(`https://catch-bids-3.onrender.com/User/mybid/${x}`, {
+    const response = await fetch(`https://catch-bids-3.onrender.com/User/mybid/${t}`, {
       method: 'GET',
     })
     if (response.ok) {
@@ -80,24 +79,25 @@ onMounted(() => { getdata(); })
 <style scoped>
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
   gap: 19px;
 }
 
+
 .item-container {
-  border: 1px solid #ccc;
+  border: 2px solid #eeeee9;
   border-radius: 8px;
   overflow: hidden;
-  background-color: #f9f9f9;
+  background-color: #f6f6ed;
   display: flex;
   flex-direction: column;
 }
-
 .item-content {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
+
 
 .item-image {
   width: 100%;
