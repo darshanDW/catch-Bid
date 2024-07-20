@@ -81,7 +81,7 @@ const getlist = (list) => {
 const del=async (list) =>{
   console.log(JSON.stringify(list))
   try {
-    const response = await fetch(`https://catch-bids-3.onrender.com`, {
+    const response = await fetch(`https://catch-bids-3.onrender.com/User/del`, {
       method: 'DELETE',
       headers: { 'content-Type': 'application/json' },
 
