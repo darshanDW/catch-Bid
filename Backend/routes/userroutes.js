@@ -3,7 +3,7 @@ const router = express.Router();
 const Users = require('../models/users');
 const Items = require('../models/items');
 const Bids = require('../models/bids');
-
+const { Socket } = require('socket.io');
 router.post('/login', async (req, res) => {
 
     try {
@@ -51,8 +51,11 @@ router.post('/bid', async (req, res) => {
         }
     } catch (err) {
         console.error("Internal error:", err);
+        res.status(500).json({ msg: "Internal server error" });
     };
 });
+
+
 router.post('/bidlist/:id', async (req, res) => {
     try {
         const { user_id } = req.body;

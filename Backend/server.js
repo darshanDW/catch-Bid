@@ -11,6 +11,7 @@ app.use(bodyParser.json()); // req.bodys
 const Items = require('./models/items');
 const Users = require('./models/users');
 const cloudinary = require('./utili/cloudinary');
+const Bids = require('./models/bids');
 const pORT = process.env.PORT || 3000;
 
 
@@ -66,6 +67,37 @@ app.post('/uploads', upload.single('avatar'), async function (req, res) {
 
 });
 
-app.listen(3001, () => {
+const server = app.listen(pORT, () => {
     console.log(pORT);
-})
+});
+const io = require("socket.io")(server, {
+    cors: {
+
+        origin: "*",
+        methods: ["GET", "POST"],
+    },
+});
+io.on('connection', Socket => {
+    Socket.send("ghii");
+    Socket.on('Message', async (data) => {
+        console.log(data);
+        try {
+
+            const user_id = data.user_id;
+            const item_id = data.id;
+            const bids = await Bids.find({ item_id: item_id }).sort({ 'timestamp': -1 }).limit(5);
+            console.log(bids);
+            const user = await Users.findById(user_id);
+            if (!user) {
+                Socket.emit('not');
+
+            }
+            if (bids) {
+                Socket.emit('recieve', bids)
+            }
+        } catch (err) {
+            console.error("Internal error:", err);
+            Socket.send("problem")
+        }
+    })
+});
