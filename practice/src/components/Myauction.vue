@@ -18,6 +18,9 @@
           <button @click="getlist(list)" class="bid-button">
             view bid
           </button>
+          <button @click="del(list)" class="bid-button">
+            delete item
+          </button>
 
         </div>
       </div>
@@ -72,6 +75,28 @@ const getdata = async () => {
 const getlist = (list) => {
   selectedlist.value = list;
   show.value = true;
+};
+
+
+const del=async (list) =>{
+  console.log(JSON.stringify(list))
+  try {
+    const response = await fetch(`https://catch-bids-3.onrender.com`, {
+      method: 'DELETE',
+      headers: { 'content-Type': 'application/json' },
+
+         body: JSON.stringify(list)
+    })
+    if (response.ok) {
+console.log("deleted");
+    }
+    else {
+      alert("no auctions get");
+    }
+
+  } catch (err) {
+    console.error({ message: err })
+  }
 }
 onMounted(() => { getdata(); })
 

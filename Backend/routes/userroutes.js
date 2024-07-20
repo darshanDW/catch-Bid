@@ -84,4 +84,23 @@ router.get('/mybid/:t', async (req, res) => {
         res.status(500).json({ err: "Internal error" });
     }
 });
+
+
+router.delete('/del', async (req, res) => {
+    const data = req.body;
+    if (!data) {
+        return res.status(400).json({ msg: "data not get" })
+
+    }
+    try {
+        const response = await Items.findByIdAndDelete(data._id);
+        if (response) {
+            res.status(200).json({ response: response });
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ err: "Internal error" });
+
+    }
+})
 module.exports = router;
