@@ -14,7 +14,6 @@
           <button @click="getlist(list)" class="bid-button">
             {{ (new Date(list.end_date) < new Date() || t === list.user_id[0]) ? 'View bid' : 'Place bid' }} </button>
         </div>
-
       </div>
     </div>
   </div>
@@ -41,7 +40,7 @@ const formatDate = (dateString) => {
 const getdata = async () => {
 
   try {
-    const response = await fetch('https://catch-bids-3.onrender.com/User/lists', {
+    const response = await fetch('http://localhost:3001/User/lists', {
       method: 'GET',
     })
     if (response.ok) {

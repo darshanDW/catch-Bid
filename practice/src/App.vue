@@ -97,13 +97,14 @@ export default {
     },
     async postdata() {
       try {
-        const res = await fetch("https://catch-bids-3.onrender.com/User/login", {
+        const res = await fetch("http://localhost:3001/User/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: this.email, name: this.name })
         });
         if (res.ok) {
           const response = await res.json();
+          
           this.user_id = response.response._id;
           console.log(this.user_id);
         }

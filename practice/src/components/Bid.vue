@@ -3,111 +3,99 @@
         <!-- Display data from the list prop -->
         <h1 class="auction-title">Auction for {{ listdata.itemname }}</h1>
         <h1 class="auction-status">{{ (new Date(listdata.end_date) < new Date()) ? 'status off' : 'status on' }}</h1>
-                <div class="auction-content">
-
-                    <img v-if="listdata.itemimage" :src="listdata.itemimage"
-                        alt="Item Image" class="item-image" />
-                    <div class="auction-details">
-
-                        <h2>current price:{{ cp }}</h2>
-                        <h2>starting price:{{ listdata.starting_price }}</h2>
-
-                        <h2>Bid interval :{{ listdata.bid_interval }}</h2>
-
-                        <h4 v-if="new Date(list.end_date) < new Date()">winner is{{ bids[0].name }} </h4>
-
-                    </div>
-
-                    <div class="bids-section">
-                        <button v-if="(!(listdata.user_id == props.id) && (new Date(listdata.end_date) > new Date()))"
-                            @click="placebid" class="bid-button">placebid</button>
-                        <p>current bids</p>
-                        <ul v-if="bids.length">
-                            <li v-for="bid in bids" :key="bid._id"> {{ bid.amount }} by {{ bid.name }}...... {{
-                                formattimestamp(bid.timestamp) }} </li>
-                        </ul>
-                        <ul v-if="!bids.length">no bid yet</ul>
-                    </div>
-                </div>
+        <div class="auction-content">
+            <img v-if="listdata.itemimage" :src="listdata.itemimage" alt="Item Image" class="item-image" />
+            <div class="auction-details">
+                <h2>current price: {{ cp }}</h2>
+                <h2>starting price: {{ listdata.starting_price }}</h2>
+                <h2>Bid interval: {{ listdata.bid_interval }}</h2>
+                <h4 v-if="new Date(listdata.end_date) < new Date()">winner is {{ bids[0]?.name }}</h4>
+            </div>
+            <div class="bids-section">
+                <button v-if="(!(listdata.user_id === id) && (new Date(listdata.end_date) > new Date()))"
+                        @click="placebid" class="bid-button">placebid</button>
+                <p>current bids</p>
+                <ul v-if="bids.length">
+                    <li v-for="bid in bids" :key="bid._id">{{ bid.amount }} by {{ bid.name }}...... {{ formattimestamp(bid.timestamp) }}</li>
+                </ul>
+                <ul v-if="!bids.length">no bid yet</ul>
+            </div>
+        </div>
     </div>
 </template>
 <script setup>
-import { onMounted, onUpdated, ref } from 'vue';
-import { formatDistance, subDays } from 'date-fns'
-const { io } = require("socket.io-client");
+import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { formatDistance } from 'date-fns';
+import { io } from 'socket.io-client';
 
+const socket = io("http://localhost:3001");
 
 import { defineProps } from 'vue';
 const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toISOString().split('T')[0];
 };
+
 const props = defineProps({
     list: Object,
     id: String
 });
-let listdata = JSON.parse(JSON.stringify(props.list));
-const cp = ref(listdata.current_price);
+
+let listdata = ref(JSON.parse(JSON.stringify(props.list)));
+const cp = ref(listdata.value.current_price);
 const bids = ref([]);
 const username = ref('');
-function formattimestamp(timestamp = Date) {
-    return formatDistance(timestamp, new Date(), { addSuffix: true })
-};
 
+function formattimestamp(timestamp) {
+    return formatDistance(new Date(timestamp), new Date(), { addSuffix: true });
+};
 
 const placebid = async () => {
     try {
-        const response = await fetch('https://catch-bids-3.onrender.com/User/bid', {
-            method: 'POST',
-            headers: { 'content-Type': 'application/json' },
-            body: JSON.stringify({ amount: cp.value + listdata.bid_interval, user_id: props.id, item_id: listdata._id }),
-
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-
-            cp.value = data.k;
-            listdata.current_price = data.k;
-
-            getbid();
-
-        }
-
-    }
-
-    catch (err) {
+        socket.emit('bid', JSON.stringify({ amount: cp.value + listdata.value.bid_interval, user_id: props.id, item_id: listdata.value._id }));
+    } catch (err) {
         console.error({ message: err });
     }
 };
 
-const getbid = async () => {
-    const socket = io("https://catch-bids-3.onrender.com");
+const getbid = () => {
     try {
-socket.emit('Message',{user_id:props.id,item_id:listdata._id})
-        
-
-
-        
-socket.on('bids_retrieved',data=>{
-    console.log(data);
-
-bids.value = data;
-
-})          
-
-        
-    }
-
-
-
-    catch (err) {
+        socket.emit('Message', { user_id: props.id, item_id: listdata.value._id });
+    } catch (err) {
         console.error({ message: err });
-
     }
 };
-onMounted(() => { getbid(); });
 
+socket.on('getbid', (data) => {
+    listdata.value.current_price = data.k;
+    cp.value = data.k;
+    getbid();
+});
+
+socket.on('bids_retrieved', (data) => {
+    bids.value = data.bids;
+    cp.value = bids.value[0]?.amount;
+});
+
+onMounted(() => {
+    socket.emit('join_room', { item_id: listdata.value._id });
+    getbid();
+    socket.on('bids_retrieved', (data) => {
+    bids.value = data.bids;
+    cp.value = bids.value[0]?.amount;
+});
+});
+
+onUnmounted(() => {
+    socket.off('getbid');
+    socket.off('bids_retrieved');
+});
+
+watch(() => props.list, (newList) => {
+    listdata.value = JSON.parse(JSON.stringify(newList));
+    cp.value = listdata.value.current_price;
+    getbid();
+}, { immediate: true });
 </script>
 <style scoped>
 .auction-container {
@@ -140,7 +128,6 @@ onMounted(() => { getbid(); });
     grid-template-rows: auto auto;
     gap: 20px;
 }
-
 
 .item-image {
     grid-column: 1 / 2;
@@ -181,8 +168,8 @@ onMounted(() => { getbid(); });
 }
 
 .bids-section {
-    grid-column: 2/ 5;
-    grid-row: 1/ 5;
+    grid-column: 2 / 5;
+    grid-row: 1 / 5;
     background-color: #ebeae1;
     padding: 20px;
     border-radius: 8px;

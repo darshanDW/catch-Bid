@@ -1,41 +1,35 @@
-express = require('express')
+const express = require('express');
 const app = express();
 const db = require('./db');
 require('dotenv').config();
 const cors = require('cors');
 app.use(cors());
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
 const path = require('path');
-app.use(bodyParser.json()); // req.bodys
+app.use(bodyParser.json());
 const Items = require('./models/items');
 const Users = require('./models/users');
 const cloudinary = require('./utili/cloudinary');
 const Bids = require('./models/bids');
-const pORT = process.env.PORT || 3000;
-
+const PORT = process.env.PORT || 3000;
 
 const userroutes = require('./routes/userroutes');
 
 app.use('/User', userroutes);
 app.use("/uploads", express.static('uploads'));
 
-const multer = require('multer')
+const multer = require('multer');
 const storage = multer.diskStorage({
     filename: function (req, file, cb) {
-        cb(null, file.originalname)
+        cb(null, file.originalname);
     }
 });
 
-
-const upload = multer({ storage: storage })
-
+const upload = multer({ storage: storage });
 
 app.post('/uploads', upload.single('avatar'), async function (req, res) {
-    // req.file is the `avatar` file
-    // req.body will hold the text fields, if there were any
     console.log(req.body);
-
 
     try {
         if (!req.file) {
@@ -50,64 +44,77 @@ app.post('/uploads', upload.single('avatar'), async function (req, res) {
 
         const { user_id, end_date, itemname, starting_price } = req.body;
 
+        const response = await new Items({
+            user_id: user_id,
+            itemname: itemname,
+            starting_price: starting_price,
+            end_date: end_date,
+            itemimage: link
+        }).save();
 
-
-        const response = await new Items({ user_id: user_id, itemname: itemname, starting_price: starting_price, end_date: end_date, itemimage: link }).save();
-
-
-        res.status(200).json({ response: response, });
-
-
+        res.status(200).json({ response: response });
     } catch (err) {
         console.log(err);
-        return res.status(500).json({ msg: "internal problem" })
-
+        return res.status(500).json({ msg: "internal problem" });
     }
-
-
 });
 
-const server = app.listen(pORT, () => {
-    console.log(pORT);
+const server = app.listen(PORT, () => {
+    console.log(PORT);
 });
+
 const io = require("socket.io")(server, {
     cors: {
-
         origin: "*",
         methods: ["GET", "POST"],
     },
 });
-io.on('connection', (Socket) => {
-    Socket.send("ghii");
 
-    Socket.on('Message', async (data) => {
-        console.log(JSON.parse(JSON.stringify(data)));
+io.on('connection', (socket) => {
+    socket.on('join_room', (data) => {
+        const { item_id } = data;
+        socket.join(item_id);
+        socket.send("Connected to room");
 
-        try {
-            const user_id = JSON.parse(data).user_id;
-            console.log(user_id)
-            const item_id = JSON.parse(data).id;
+        socket.on('bid', async (data) => {
+            console.log(data);
+            const dat = JSON.parse(data);
+            try {
+                const user = await Users.findById(dat.user_id);
+                const item = await Items.findById(dat.item_id);
+                if (user && item) {
+                    const bid = await new Bids({ amount: dat.amount, user_id: dat.user_id, item_id: dat.item_id, name: user.name }).save();
+                    await Items.findByIdAndUpdate(dat.item_id, { current_price: dat.amount });
 
-            const bids = await Bids.find({ item_id: item_id }).sort({ 'timestamp': -1 }).limit(5);
-            console.log(bids);
-
-            const user = await Users.findById(user_id);
-            console.log(user);
-            if (!user) {
-                Socket.emit('user_not_found', { message: 'User not found', user_id });
-                return;
+                    io.to(dat.item_id).emit('getbid', { bid, k: dat.amount });
+                    console.log(3);
+                }
+            } catch (err) {
+                console.error("Internal error:", err);
             }
+        });
 
-            if (bids) {
-                Socket.emit('bids_retrieved', { bids });
-            } else {
-                Socket.emit('no_bids_found', { message: 'No bids found for this item', item_id });
+        socket.on('Message', async (data) => {
+            try {
+                const user_id = data.user_id;
+                const item_id = data.item_id;
+
+                const bids = await Bids.find({ item_id: item_id }).sort({ 'timestamp': -1 }).limit(5);
+                const user = await Users.findById(user_id);
+                if (!user) {
+                    socket.emit('user_not_found', { message: 'User not found', user_id });
+                    return;
+                }
+
+                if (bids.length > 0) {
+                    socket.emit('bids_retrieved', { bids });
+                } else {
+                    socket.emit('no_bids_found', { message: 'No bids found for this item', item_id });
+                }
+            } catch (err) {
+                console.error("Internal error:", err);
+                socket.emit('error', { message: 'Internal server error', error: err.message });
             }
-
-            // Additional handling if required
-        } catch (err) {
-            console.error("Internal error:", err);
-            Socket.emit('error', { message: 'Internal server error', error: err.message });
-        }
+        });
     });
 });
