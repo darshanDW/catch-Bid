@@ -40,7 +40,7 @@ const formatDate = (dateString) => {
 const getdata = async () => {
 
   try {
-    const response = await fetch('http://localhost:3001/User/lists', {
+    const response = await fetch('https://catch-bids-3.onrender.com/User/lists', {
       method: 'GET',
     })
     if (response.ok) {

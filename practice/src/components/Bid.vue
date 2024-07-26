@@ -28,7 +28,7 @@ import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { formatDistance } from 'date-fns';
 import { io } from 'socket.io-client';
 
-const socket = io("http://localhost:3001");
+const socket = io("https://catch-bids-3.onrender.com");
 
 import { defineProps } from 'vue';
 const formatDate = (dateString) => {
