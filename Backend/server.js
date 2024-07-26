@@ -77,27 +77,37 @@ const io = require("socket.io")(server, {
         methods: ["GET", "POST"],
     },
 });
-io.on('connection', Socket => {
+io.on('connection', (Socket) => {
     Socket.send("ghii");
-    Socket.on('Message', async (data) => {
-        console.log(data);
-        try {
 
-            const user_id = data.user_id;
-            const item_id = data.id;
+    Socket.on('Message', async (data) => {
+        console.log(JSON.parse(JSON.stringify(data)));
+
+        try {
+            const user_id = JSON.parse(data).user_id;
+            console.log(user_id)
+            const item_id = JSON.parse(data).id;
+
             const bids = await Bids.find({ item_id: item_id }).sort({ 'timestamp': -1 }).limit(5);
             console.log(bids);
-            const user = await Users.findById(user_id);
-            if (!user) {
-                Socket.emit('not');
 
+            const user = await Users.findById(user_id);
+            console.log(user);
+            if (!user) {
+                Socket.emit('user_not_found', { message: 'User not found', user_id });
+                return;
             }
+
             if (bids) {
-                Socket.emit('recieve', bids)
+                Socket.emit('bids_retrieved', { bids });
+            } else {
+                Socket.emit('no_bids_found', { message: 'No bids found for this item', item_id });
             }
+
+            // Additional handling if required
         } catch (err) {
             console.error("Internal error:", err);
-            Socket.send("problem")
+            Socket.emit('error', { message: 'Internal server error', error: err.message });
         }
-    })
+    });
 });

@@ -63,6 +63,7 @@ const getdata = async () => {
 
       const data = await response.json();
       lists.value = data.response;
+      console.log(data);
     }
     else {
       alert("no auctions get");
@@ -89,6 +90,7 @@ const del=async (list) =>{
     })
     if (response.ok) {
 console.log("deleted");
+getdata();
     }
     else {
       alert("no auctions get");

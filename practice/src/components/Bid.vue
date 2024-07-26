@@ -34,6 +34,8 @@
 <script setup>
 import { onMounted, onUpdated, ref } from 'vue';
 import { formatDistance, subDays } from 'date-fns'
+const { io } = require("socket.io-client");
+
 
 import { defineProps } from 'vue';
 const formatDate = (dateString) => {
@@ -78,26 +80,23 @@ const placebid = async () => {
         console.error({ message: err });
     }
 };
+
 const getbid = async () => {
+    const socket = io("https://catch-bids-3.onrender.com");
     try {
-
-        const response = await fetch(`https://catch-bids-3.onrender.com/User/bidlist/${listdata._id}`, {
-            method: 'POST',
-
-            headers: { 'content-Type': 'application/json' },
-
-            body: JSON.stringify({ user_id: props.id })
-        }
+socket.emit('Message',{user_id:props.id,item_id:listdata._id})
+        
 
 
+        
+socket.on('bids_retrieved',data=>{
+    console.log(data);
 
-        )
-        if (response.ok) {
-            const data = await response.json();
+bids.value = data;
 
-            bids.value = data.response;
+})          
 
-        }
+        
     }
 
 
