@@ -72,6 +72,7 @@ export default {
     async handleSignIn() {
       try {
         const googleUser = await this.$gAuth.signIn();
+        console.log(googleUser)
         if (!googleUser) {
           return null;
         }

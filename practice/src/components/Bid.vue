@@ -12,7 +12,7 @@
                 <h4 v-if="new Date(listdata.end_date) < new Date()">winner is {{ bids[0]?.name }}</h4>
             </div>
             <div class="bids-section">
-                <button v-if="(!(listdata.user_id === id) && (new Date(listdata.end_date) > new Date()))"
+                <button v-if="(!(listdata.user_id[0] === id) && (new Date(listdata.end_date) > new Date()))"
                         @click="placebid" class="bid-button">placebid</button>
                 <p>current bids</p>
                 <ul v-if="bids.length">
@@ -20,7 +20,7 @@
                 </ul>
                 <ul v-if="!bids.length">no bid yet</ul>
             </div>
-        </div>
+        </div>~
     </div>
 </template>
 <script setup>
