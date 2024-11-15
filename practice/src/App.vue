@@ -38,8 +38,7 @@
 <script>
 import { RouterLink, RouterView } from 'vue-router';
 import { inject } from 'vue';
-import { onMounted } from 'vue';
-
+import { onBeforeMount } from 'vue';
 const Vue3GoogleOauth = inject('Vue3GoogleOauth');
 import Allauction from './components/Allauction.vue';
 import Myauction from './components/Myauction.vue';
@@ -134,7 +133,7 @@ export default {
   }
 
 };
-onMounted(() => { console.log(this.user_id) })
+onBeforeMount(() => { console.log(this.user_id) })
 </script>
 <style scoped>
 .main-header {
