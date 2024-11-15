@@ -6,7 +6,6 @@ const cors = require('cors');
 app.use(cors());
 
 const path = require('path');
-app.use(bodyParser.json());
 const Items = require('./models/items');
 const Users = require('./models/users');
 const cloudinary = require('./utili/cloudinary');
