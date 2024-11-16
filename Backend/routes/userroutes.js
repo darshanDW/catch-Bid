@@ -7,6 +7,7 @@ const { Socket } = require('socket.io');
 router.post('/login', async (req, res) => {
     console.log(2)
     try {
+        console.log(req.body)
         const { email, name } = req.body;
         if (!email) {
             return res.status(400).json({ error: "Email is required" });
@@ -68,6 +69,7 @@ router.delete('/del', async (req, res) => {
     }
     try {
         const response = await Items.findByIdAndDelete(data._id);
+        
         if (response) {
             res.status(200).json({ response: response });
         }
