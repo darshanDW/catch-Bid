@@ -77,44 +77,72 @@ io.on('connection', (socket) => {
         socket.send("Connected to room");
 
         socket.on('bid', async (data) => {
-            console.log(data);
-            const dat = JSON.parse(data);
             try {
-                const user = await Users.findById(dat.user_id);
-                const item = await Items.findById(dat.item_id);
-                if (user && item) {
-                    const bid = await new Bids({ amount: dat.amount, user_id: dat.user_id, item_id: dat.item_id, name: user.name }).save();
-                    await Items.findByIdAndUpdate(dat.item_id, { current_price: dat.amount });
-
-                    io.to(dat.item_id).emit('getbid', { bid, k: dat.amount });
-                    console.log(3);
+                // Parse and validate the incoming data
+                const { user_id, item_id, amount } = JSON.parse(data);
+                if (!user_id || !item_id || !amount) {
+                    console.error("Invalid bid data:", data);
+                    return;
                 }
+
+                // Fetch user and item data in parallel
+                const [user, item] = await Promise.all([
+                    Users.findById(user_id).select('name'),
+                    Items.findById(item_id).select('current_price')
+                ]);
+
+                if (!user || !item) {
+                    console.error("User or Item not found:", { user_id, item_id });
+                    return;
+                }
+
+                // Save the bid and update the item concurrently
+                const [bid] = await Promise.all([
+                    new Bids({ amount, user_id, item_id, name: user.name }).save(),
+                    Items.findByIdAndUpdate(item_id, { current_price: amount })
+                ]);
+
+                // Emit the updated bid to the relevant room
+                io.to(item_id).emit('getbid', { bid, currentPrice: amount });
             } catch (err) {
-                console.error("Internal error:", err);
+                console.error("Error processing bid:", err);
             }
         });
 
-        socket.on('Message', async (data) => {
-            try {
-                const user_id = data.user_id;
-                const item_id = data.item_id;
 
-                const bids = await Bids.find({ item_id: item_id }).sort({ 'timestamp': -1 }).limit(5);
-                const user = await Users.findById(user_id);
+        socket.on('Message', async (data) => {
+            console.log(1)
+            try {
+                const { user_id, item_id } = data;
+console.log(user_id)
+                // Input validation
+                if (!user_id || !item_id) {
+                    socket.emit('error', { message: 'Invalid input: user_id and item_id are required' });
+                    return;
+                }
+
+                // Parallelize database queries for better performance
+                const [user, bids] = await Promise.all([
+                    Users.findById(user_id),
+                    Bids.find({ item_id }).sort({ timestamp: -1 }).limit(5)
+                ]);
+                // Check if user exists
                 if (!user) {
                     socket.emit('user_not_found', { message: 'User not found', user_id });
                     return;
                 }
 
+                // Emit response based on bid results
                 if (bids.length > 0) {
                     socket.emit('bids_retrieved', { bids });
                 } else {
                     socket.emit('no_bids_found', { message: 'No bids found for this item', item_id });
                 }
             } catch (err) {
-                console.error("Internal error:", err);
+                console.error('Internal error:', err);
                 socket.emit('error', { message: 'Internal server error', error: err.message });
             }
         });
+
     });
 });

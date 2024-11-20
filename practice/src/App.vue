@@ -1,7 +1,7 @@
 <template>
   <div>
     <header class="main-header">
-      <nav class="nav-links" v-if="Vue3GoogleOauth.isAuthorized">
+      <nav class="nav-links" v-if="this.user_id!=1 && Vue3GoogleOauth.isAuthorized">
         <RouterLink :to="{ name: 'Allauction', params: { x: this.user_id } }"> Allauction </RouterLink>
         <RouterLink :to="{ name: 'CreateAuction', params: { x: this.user_id } }">CreateAuction</RouterLink>
         <RouterLink :to="{ name: 'Myauction', params: { x: this.user_id } }">Myauction</RouterLink>
@@ -24,7 +24,6 @@
 
 
 
-
     <main v-if="Vue3GoogleOauth.isAuthorized">
       <RouterView></RouterView>
     </main>
@@ -38,7 +37,7 @@
 <script>
 import { RouterLink, RouterView } from 'vue-router';
 import { inject } from 'vue';
-import { onBeforeMount } from 'vue';
+import { onMounted } from 'vue';
 const Vue3GoogleOauth = inject('Vue3GoogleOauth');
 import Allauction from './components/Allauction.vue';
 import Myauction from './components/Myauction.vue';
@@ -58,7 +57,7 @@ export default {
     return {
       signin: false,
       email: '',
-      user_id: '1',
+      user_id: 1,
       name: '',
       url: '',
       clientId: '338987951318-2r5pk9djv0ot94nd7qc22frscn8050ve.apps.googleusercontent.com',
@@ -76,15 +75,18 @@ export default {
           return null;
         }
         this.name = googleUser.getBasicProfile().getName();
+        console.log(googleUser.getBasicProfile().getName())
 
         this.email = googleUser.getBasicProfile().getEmail();
         this.url = googleUser.getBasicProfile().getImageUrl(); // Add this line to get the user's profile picture URL
+
+        await this.postdata();
+
       } catch (error) {
         console.log(error);
         return null;
       };
 
-      await this.postdata();
 
 
     },
@@ -92,12 +94,14 @@ export default {
       try {
         await this.$gAuth.signOut();
         this.email = '';
+this.user_id=1;
       } catch (error) {
       }
     },
     async postdata() {
       try {
-        const res = await fetch("https://catch-bids-3.onrender.com/User/login", {
+        console.log(this.email,this.name)
+        const res = await fetch("https://catch-bid-3.onrender.com/User/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: this.email, name: this.name })
@@ -133,7 +137,7 @@ export default {
   }
 
 };
-onBeforeMount(() => { console.log(this.user_id) })
+onMounted(() => { console.log(this.user_id) })
 </script>
 <style scoped>
 .main-header {
