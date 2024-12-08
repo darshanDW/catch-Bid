@@ -24,7 +24,7 @@
     </div>
 </template>
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { onBeforeMount, onMounted, onUnmounted, ref, watch } from 'vue';
 import { formatDistance } from 'date-fns';
 import { io } from 'socket.io-client';
 
@@ -77,7 +77,7 @@ socket.on('bids_retrieved', (data) => {
     cp.value = bids.value[0]?.amount;
 });
 
-onMounted(() => {
+onBeforeMount(() => {
     socket.emit('join_room', { item_id: listdata.value._id });
     getbid();
     socket.on('bids_retrieved', (data) => {

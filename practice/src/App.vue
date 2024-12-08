@@ -1,7 +1,7 @@
 <template>
   <div>
     <header class="main-header">
-      <nav class="nav-links" v-if="this.user_id!=1 && Vue3GoogleOauth.isAuthorized">
+      <nav class="nav-links" v-if="this.user_id != 1 || Vue3GoogleOauth.isAuthorized">
         <RouterLink :to="{ name: 'Allauction', params: { x: this.user_id } }"> Allauction </RouterLink>
         <RouterLink :to="{ name: 'CreateAuction', params: { x: this.user_id } }">CreateAuction</RouterLink>
         <RouterLink :to="{ name: 'Myauction', params: { x: this.user_id } }">Myauction</RouterLink>
@@ -94,21 +94,22 @@ export default {
       try {
         await this.$gAuth.signOut();
         this.email = '';
-this.user_id=1;
+        this.user_id = 1;
       } catch (error) {
       }
     },
     async postdata() {
       try {
-        console.log(this.email,this.name)
+        console.log(this.email, this.name)
         const res = await fetch("https://catch-bid-3.onrender.com/User/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: this.email, name: this.name })
         });
         if (res.ok) {
+          console.log(2)
           const response = await res.json();
-          
+
           this.user_id = response.response._id;
           console.log(this.user_id);
         }

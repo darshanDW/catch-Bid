@@ -44,7 +44,7 @@ const getdata = async () => {
       method: 'GET',
     })
     if (response.ok) {
-
+ console.log(1)
       const data = await response.json();
       lists.value = data.response;
     }
