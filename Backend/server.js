@@ -5,7 +5,7 @@ require('dotenv').config();
 const cors = require('cors');
 app.use(cors());
 app.use(express.json());
-
+ObjectId = require('mongodb').ObjectId;
 const path = require('path');
 const Items = require('./models/items');
 const Users = require('./models/users');
@@ -43,9 +43,9 @@ app.post('/uploads', upload.single('avatar'), async function (req, res) {
         console.log(link);
 
         const { user_id, end_date, itemname, starting_price } = req.body;
-
+console.log(user_id)
         const response = await new Items({
-            user_id: user_id,
+            user_id: new ObjectId(user_id),
             itemname: itemname,
             starting_price: starting_price,
             end_date: end_date,
@@ -71,12 +71,15 @@ const io = require("socket.io")(server, {
 });
 
 io.on('connection', (socket) => {
+    console.log('New client connected');
     socket.on('join_room', (data) => {
+        console.log("User joined room:", data);
         const { item_id } = data;
         socket.join(item_id);
         socket.send("Connected to room");
 
         socket.on('bid', async (data) => {
+            console.log("Bid data received:", data);
             try {
                 // Parse and validate the incoming data
                 const { user_id, item_id, amount } = JSON.parse(data);
