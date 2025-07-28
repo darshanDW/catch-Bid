@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../style/Authpage_new.css'; // Import your CSS for styling
+import '../style/AuthPage_new.css' // Import your CSS for styling
 function AuthPage({ onAuthSuccess }) {
     const backendUrl = import.meta.env.VITE_BACKEND_URL;    
   const [isSignup, setIsSignup] = useState(false);
