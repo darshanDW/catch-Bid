@@ -79,37 +79,43 @@ io.on('connection', (socket) => {
         socket.send("Connected to room");
 
         socket.on('bid', async (data) => {
-            console.log("Bid data received:", data);
-            try {
-                // Parse and validate the incoming data
-                const { user_id, item_id, amount } = JSON.parse(data);
-                if (!user_id || !item_id || !amount) {
-                    console.error("Invalid bid data:", data);
-                    return;
+                console.log("Bid data received:", data);
+                const mongoose = require('mongoose');
+                const session = await mongoose.startSession();
+                try {
+                    await session.withTransaction(async () => {
+                        // Parse and validate the incoming data
+                        const { user_id, item_id, amount } = JSON.parse(data);
+                        if (!user_id || !item_id || !amount) {
+                            console.error("Invalid bid data:", data);
+                            await session.abortTransaction();
+                            return;
+                        }
+
+                        // Fetch user and item data in parallel
+                        const [user, item] = await Promise.all([
+                            Users.findById(user_id).select('name').session(session),
+                            Items.findById(item_id).select('current_price').session(session)
+                        ]);
+
+                        if (!user || !item) {
+                            console.error("User or Item not found:", { user_id, item_id });
+                            await session.abortTransaction();
+                            return;
+                        }
+
+                        // Save the bid and update the item concurrently
+                        const bid = await new Bids({ amount, user_id, item_id, name: user.name }).save({ session });
+                        await Items.findByIdAndUpdate(item_id, { current_price: amount }, { session });
+
+                        // Emit the updated bid to the relevant room
+                        io.to(item_id).emit('getbid', { bid, currentPrice: amount });
+                    });
+                } catch (err) {
+                    console.error("Error processing bid:", err);
+                } finally {
+                    session.endSession();
                 }
-
-                // Fetch user and item data in parallel
-                const [user, item] = await Promise.all([
-                    Users.findById(user_id).select('name'),
-                    Items.findById(item_id).select('current_price')
-                ]);
-
-                if (!user || !item) {
-                    console.error("User or Item not found:", { user_id, item_id });
-                    return;
-                }
-
-                // Save the bid and update the item concurrently
-                const [bid] = await Promise.all([
-                    new Bids({ amount, user_id, item_id, name: user.name }).save(),
-                    Items.findByIdAndUpdate(item_id, { current_price: amount })
-                ]);
-
-                // Emit the updated bid to the relevant room
-                io.to(item_id).emit('getbid', { bid, currentPrice: amount });
-            } catch (err) {
-                console.error("Error processing bid:", err);
-            }
         });
 
 
