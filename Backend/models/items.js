@@ -13,10 +13,7 @@ const itemsSchema = new mongoose.Schema({
         default: function () { return this.starting_price },
     },
     starting_price: { type: Number },
-    bid_interval: {
-        type: Number,
-        default: 10
-    },
+
     end_date: { type: Date },
     Status: {
         type: String,
@@ -34,7 +31,15 @@ const itemsSchema = new mongoose.Schema({
 
 
 });
+  itemsSchema.virtual('bid_interval').get(function () {
+    const price = this.current_price;
 
+    if (price < 1000) return 10;
+    if (price < 5000) return 50;
+    if (price < 10000) return 100;
+    if (price < 50000) return 500;
+    return 1000;
+});
 const Items = mongoose.model('Items', itemsSchema);
 
 module.exports = Items;
