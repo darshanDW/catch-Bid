@@ -29,7 +29,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 app.post('/uploads', upload.single('avatar'), async function (req, res) {
-    console.log(req.body);
 
     try {
         if (!req.file) {
@@ -106,10 +105,10 @@ io.on('connection', (socket) => {
 
                         // Save the bid and update the item concurrently
                         const bid = await new Bids({ amount, user_id, item_id, name: user.name }).save({ session });
-                        await Items.findByIdAndUpdate(item_id, { current_price: amount }, { session });
-
+                        const updatedItem = await Items.findByIdAndUpdate(item_id, { current_price: amount }, { session });
+console.log(updatedItem)
                         // Emit the updated bid to the relevant room
-                        io.to(item_id).emit('getbid', { bid, currentPrice: amount });
+                        io.to(item_id).emit('getbid', { bid, currentPrice: updatedItem.current_price, bidInterval: updatedItem.bid_interval });
                     });
                 } catch (err) {
                     console.error("Error processing bid:", err);

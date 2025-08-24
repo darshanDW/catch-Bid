@@ -8,12 +8,12 @@ const itemsSchema = new mongoose.Schema({
         type: String
     },
       
-    current_price: {
+    
+    starting_price: { type: Number },
+current_price: {
         type: Number,
         default: function () { return this.starting_price },
     },
-    starting_price: { type: Number },
-
     end_date: { type: Date },
     Status: {
         type: String,
@@ -30,7 +30,10 @@ const itemsSchema = new mongoose.Schema({
 
 
 
-});
+},{
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }}
+);
   itemsSchema.virtual('bid_interval').get(function () {
     const price = this.current_price;
 

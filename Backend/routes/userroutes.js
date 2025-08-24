@@ -157,10 +157,11 @@ router.post('/signin', async (req, res) => {
 router.get('/Item/:itemId', async (req, res) => {
     try {
         const { itemId } = req.params;
-        const item = await Items.findById(itemId);
+    const item = await Items.findById(itemId);
         if (!item) {
             return res.status(404).json({ message: 'Item not found' });
         }
+console.log(item.bid_interval);
         res.status(200).json({ response: item });
     } catch (err) {
         console.error('Error fetching item:', err);
